@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-  <h2 className="sidebar-logo">LARAVELShop</h2>
+  <h2 className="sidebar-logo">GreenieCart</h2>
   
   <IconContext.Provider value={{ style: { marginRight: "10px" } }}>
     <nav>
@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
   
     <header className="top-navbar">
      <span className="menu-icon" onClick={toggleSidebar}> <FaBars /></span>
-      <h2>WELCOME TO LARAVELShop</h2>
+      <h2>WELCOME TO GREENIECART</h2>
       <div className="search-notifications">
         <div className="search-bar">
           <FaSearch />
@@ -82,9 +82,17 @@ const Dashboard: React.FC = () => {
               <img src={p.image} alt={p.name} />
             </div>
             <h3>{p.name}</h3>
-            <p>₱{p.price.toLocaleString()}</p>
-            <p>Stock: {p.stock}</p>
-            <button>Buy</button>
+
+            <div className="product-info">
+                <span>₱{p.price.toLocaleString()}</span>
+                <span>Stock: {p.stock}</span>
+            </div>
+
+            <div className="product-actions">
+                <button className="add-cart-btn"><FaShoppingCart /></button>
+                <button className="buy-btn">Buy</button>
+            </div>
+
           </div>
         ))}
       </div>

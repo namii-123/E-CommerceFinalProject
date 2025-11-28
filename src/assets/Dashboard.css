@@ -212,22 +212,58 @@
     object-fit: cover;
     border-radius: 12px;
   }
-  .marketplace-card h3 { margin: 0; font-size: 15px; font-weight: 600; color: #111827; }
-  .marketplace-card p { margin: 0; color: var(--muted); font-size: 14px; }
-  .marketplace-card button {
+  .marketplace-card h3 { 
+    margin: 0; 
+    font-size: 15px; 
+    font-weight: 600; 
+    color: #111827; 
+  }
+
+  .product-info {
+    display: flex;
+  justify-content: center; /* center horizontally */
+  gap: 35px; /* small space between price and stock */
+  width: 100%;
+  font-size: 12px; /* readable, slightly smaller */
+  color: var(--muted);
+  margin-top: 4px;
+  }
+
+  .product-actions {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+    width: 100%;
     margin-top: 6px;
-    padding: 8px 12px;
-    border-radius: 8px;
+  }
+
+  .add-cart-btn, .buy-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 4px 6px;
     border: none;
-    background: var(--accent);
-    color: #fff;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 15px; 
     font-weight: 600;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: #16a34a;
+    color: white;
     transition: background 0.2s ease;
   }
-  .marketplace-card button:hover { background: #1e40af; }
+
+.add-cart-btn, .buy-btn {
+  background-color: #16a34a; 
+  color: white;
+}
+
+.add-cart-btn:hover, .buy-btn:hover {
+  background-color: #0e5729;
+}
   
-  /* ---------- Responsive adjustments ---------- */
   @media (max-width: 1024px) {
     .dashboard { flex-direction: column; }
     .sidebar {
