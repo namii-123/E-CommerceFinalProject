@@ -4,7 +4,7 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
 import MyOrder from "./components/MyOrder";
-import FinishSignIn from "./components/finishSignIn";
+
 
 function App() {
 
@@ -17,7 +17,7 @@ function App() {
         <Route path="/home" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/myorders" element={<MyOrder />} />
-        <Route path="/finishSignIn" element={<FinishSignIn />} />
+      
       </Routes>
     </BrowserRouter>
   );
