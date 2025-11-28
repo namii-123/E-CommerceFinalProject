@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaShoppingCart, FaUser, FaBars, FaSearch } from "react-icons/fa";
+import { FaHome, FaShoppingCart, FaUser, FaBars, FaSearch, FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { IconContext } from "react-icons"; 
 import "../assets/Dashboard.css";
 
@@ -15,8 +15,10 @@ interface Product {
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleOrdersDropdown = () => setOrdersDropdownOpen(!ordersDropdownOpen);
 
   const [products] = useState<Product[]>([
     { id: 1, name: "Laptop", price: 45000, stock: 10, image: "https://via.placeholder.com/150?text=Laptop" },
@@ -35,19 +37,32 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-  <h2 className="sidebar-logo">GreenieCart</h2>
-  
+      <h2 className="sidebar-logo">GreenieCart</h2> 
+       {/*<img src="/logo.png"  alt="GreenieCart Logo" className="sidebar-logo" /> */}
+
   <IconContext.Provider value={{ style: { marginRight: "10px" } }}>
     <nav>
       <ul>
         <li className="home" onClick={() => navigate("/home")}>
-          <FaHome />Home
+          <span className="left"><FaHome />Home</span>
         </li>
-        <li>
-          <FaShoppingCart />Orders
-        </li>
+        <li className="orders" onClick={toggleOrdersDropdown}>
+  <span className="left">
+    <FaShoppingCart /> Orders
+  </span>
+  <span className="orders-arrow">
+    {ordersDropdownOpen ? <FaAngleUp /> : <FaAngleDown />}
+  </span>
+</li>
+
+{ordersDropdownOpen && (
+  <ul className="dropdown">
+    <li onClick={() => navigate("/customerorders")}>Customer Orders</li>
+    <li onClick={() => navigate("/myorders")}>Your Orders</li>
+  </ul>
+)}
         <li className="profile" onClick={() => navigate("/profile")}>
-          <FaUser />Profile
+          <span className="left"><FaUser />Profile</span>
         </li>
         <li className="signout-btn" onClick={() => navigate("/login")}>
           Sign Out
