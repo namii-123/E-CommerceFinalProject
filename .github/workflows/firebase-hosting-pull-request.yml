@@ -1,10 +1,5 @@
-# .github/workflows/firebase-hosting-pull-request.yml
 name: Deploy to Firebase Hosting on PR
-on: pull_request
-permissions:
-  checks: write
-  contents: read
-  pull-requests: write
+'on': pull_request
 
 jobs:
   build_and_preview:
@@ -12,22 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'  # or 18, 22 – match imong local
+          node-version: '20'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build app
-        run: npm run build   # ← KINI ANG TAMA (dili npm run dev!)
-
+      - run: npm ci
+      - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_E_COMMERCE_B0C01 }}
           projectId: e-commerce-b0c01
-          channelId: live
+         
