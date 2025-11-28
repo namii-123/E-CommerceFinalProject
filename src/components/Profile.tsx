@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaShoppingCart, FaUser, FaBars, FaSearch, FaEdit, FaTrash, FaPlus, FaBoxOpen, FaDollarSign, FaChartLine } from "react-icons/fa";
+import { FaAngleDown, FaAngleUp, FaHome, FaShoppingCart, FaUser, FaBars, FaSearch, FaEdit, FaTrash, FaPlus, FaBoxOpen, FaDollarSign, FaChartLine } from "react-icons/fa";
 import "../assets/Profile.css";
 import { IconContext } from "react-icons"; 
 
@@ -16,7 +16,11 @@ interface Product {
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
+  
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleOrdersDropdown = () => setOrdersDropdownOpen(!ordersDropdownOpen);
+ 
 
   const [products, setProducts] = useState<Product[]>([
     { id: 1, name: "Laptop", price: 45000, stock: 10, category: "electronics", image: "https://via.placeholder.com/150?text=Laptop" },
@@ -68,13 +72,25 @@ const Profile: React.FC = () => {
           <nav>
             <ul>
               <li className="home" onClick={() => navigate("/home")}>
-                <FaHome />Home
+                <span className="left"><FaHome />Home</span>
               </li>
-              <li>
-                <FaShoppingCart />Orders
-              </li>
+              <li className="orders" onClick={toggleOrdersDropdown}>
+  <span className="left">
+    <FaShoppingCart /> Orders
+  </span>
+  <span className="orders-arrow">
+    {ordersDropdownOpen ? <FaAngleUp /> : <FaAngleDown />}
+  </span>
+</li>
+
+{ordersDropdownOpen && (
+  <ul className="dropdown">
+    <li onClick={() => navigate("/customerorders")}>Customer Orders</li>
+    <li onClick={() => navigate("/myorders")}>Your Orders</li>
+  </ul>
+)}
               <li className="profile" onClick={() => navigate("/profile")}>
-                <FaUser />Profile
+                <span className="left"><FaUser />Profile</span>
               </li>
               <li className="signout-btn" onClick={() => navigate("/login")}>
                 Sign Out
@@ -89,7 +105,7 @@ const Profile: React.FC = () => {
         {/* Top Navbar */}
           <header className="top-navbar">
              <span className="menu-icon" onClick={toggleSidebar}> <FaBars /></span>
-              <h2>PROFILE PAGE</h2>
+              <h2>PROFILE</h2>
               <div className="search-notifications">
                 <div className="search-bar">
                   <FaSearch />

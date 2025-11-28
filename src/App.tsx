@@ -4,7 +4,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
-
+import MyOrder from "./components/MyOrder";
 
 function App() {
 
@@ -16,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/myorders" element={<MyOrder />} />
       </Routes>
     </BrowserRouter>
   );
