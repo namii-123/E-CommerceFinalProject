@@ -1,9 +1,9 @@
 .login-wrapper {
     display: flex;
-    justify-content: center; /* centers horizontally */
-    align-items: center;     /* centers vertically */
-    width: 100vw;            /* full viewport width */
-    height: 100vh;           /* full viewport height */
+    justify-content: center; 
+    align-items: center;     
+    width: 100vw;            
+    height: 100vh;          
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Inter', sans-serif;
   }
