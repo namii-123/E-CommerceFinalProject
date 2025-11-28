@@ -1,11 +1,14 @@
-// Login.tsx - FINAL & CORRECT FOR 2025 FIREBASE
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Input from "./Input";
 import "../assets/Login.css";
-import { sendEmailVerification, sendSignInLinkToEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "./firebase";
+import emailjs from "@emailjs/browser";
+
+const MAX_ATTEMPTS = 3;
+const RESEND_COOLDOWN = 60;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -15,137 +18,261 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
- // Sa imong handleSubmit, i-track ang failed attempts
-const MAX_ATTEMPTS = 3;
-let failedAttempts = 0; // In real app, i-store ni sa localStorage or Firestore per user
+  // OTP States
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  
+  // Timer States
+  const [canResend, setCanResend] = useState(true);
+  const [countdown, setCountdown] = useState(0);
 
+  // Modal States
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<"success" | "error" | "info">("info");
 
-const getMagicLinkUrl = () => {
-  // Change this to your actual preview channel or ngrok URL
-  const DEV_URL = "https://your-project-id--dev-magiclink.web.app/home";
-  const PROD_URL = `${window.location.origin}/home`;
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
 
-  return import.meta.env.DEV ? DEV_URL : PROD_URL;
-};
+  const showNotification = (message: string, type: "success" | "error" | "info" = "info") => {
+    setModalMessage(message);
+    setModalType(type);
+    setShowModal(true);
+  };
 
-const actionCodeSettings = {
-  url: getMagicLinkUrl(),
-  handleCodeInApp: true,
-};
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+  const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
-    const user = userCredential.user;
+  const sendOtpEmail = async (toEmail: string, otpCode: string) => {
+    try {
+      await emailjs.send(
+        "service_2rwmowf",          
+        "template_13p1rni",          
+        {
+          to_email: toEmail.trim(),
+          user_name: "Valued Customer",        
+          message: `
+            Hello!
 
-    // Reset failed attempts on success
-    localStorage.removeItem(`failed_${email}`);
+            We noticed multiple failed login attempts on your GreenieCart account.
+
+            To protect your account and unlock login access, please use the following One-Time Password (OTP):
+
+            🎯 Your OTP: ${otpCode}
+
+            This code is valid for the next 10 minutes only.
+
+            If you did not attempt to log in, please ignore this email or contact support immediately.
+
+            Thank you for shopping with GreenieCart!
+            Stay safe,
+
+            The GreenieCart Team
+          `.replace(/^\s+/gm, ''), 
+        },
+        "g_32Hm9a0fyGUTR2Q" 
+      );
+
+      showNotification("OTP sent! Check your inbox or spam folder.", "success");
+    } catch (err: any) {
+      console.error("EmailJS OTP Error:", err);
+      setError("Failed to send OTP. Please try again.");
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!canResend) return;
     
-    if (!user.emailVerified) {
-      await sendEmailVerification(user);
-      setError("Please verify your email. New link sent.");
-      await auth.signOut();
+    const newOtp = generateOTP();
+    setGeneratedOtp(newOtp);
+    await sendOtpEmail(email, newOtp);
+    
+    setCanResend(false);
+    setCountdown(RESEND_COOLDOWN);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const key = `failed_${email}`;
+    const storedAttempts = Number(localStorage.getItem(key)) || 0;
+
+    if (showOtpInput) {
+      if (otp === generatedOtp) {
+        localStorage.removeItem(key);
+        setShowOtpInput(false);
+        setOtp("");
+        setCountdown(0);
+        setCanResend(true);
+        showNotification("Account unlocked! You can now log in.", "success");
+        setLoading(false);
+        return;
+      } else {
+        setError("Invalid OTP");
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (storedAttempts >= MAX_ATTEMPTS) {
+      const newOtp = generateOTP();
+      setGeneratedOtp(newOtp);
+      await sendOtpEmail(email.trim(), newOtp);
+      setShowOtpInput(true);
+      setCanResend(false);
+      setCountdown(RESEND_COOLDOWN);
+      setError("Too many failed attempts. Check your email for OTP.");
+      setLoading(false);
       return;
     }
 
-    navigate("/home");
-  } catch (err: any) {
-    // Increment failed attempts
-    failedAttempts = (Number(localStorage.getItem(`failed_${email}`)) || 0) + 1;
-    localStorage.setItem(`failed_${email}`, failedAttempts.toString());
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const user = userCredential.user;
 
-    if (failedAttempts >= MAX_ATTEMPTS) {
-      // TRIGGER MAGIC LINK INSTEAD
-      localStorage.removeItem(`failed_${email}`); // reset after sending
+      localStorage.removeItem(key); 
 
-      try {
-        const actionCodeSettings = {
-          url: `${window.location.origin}/home`, // where to redirect after click
-          handleCodeInApp: true,
-        };
-
-        await sendSignInLinkToEmail(auth, email.trim(), actionCodeSettings);
-        
-        // Save email for later completion
-        window.localStorage.setItem('emailForSignIn', email.trim());
-
-        setError("Too many attempts. We sent a secure login link to your email. Check your inbox!");
-      } catch (linkErr) {
-        setError("Failed to send login link. Try again.");
+      if (!user.emailVerified) {
+        await sendEmailVerification(user);
+        setError("Please verify your email. Verification link sent.");
+        await auth.signOut();
+        setLoading(false);
+        return;
       }
-    } else {
-      // Normal error messages
-      switch (err.code) {
-        case "auth/invalid-credential":
-        case "auth/wrong-password":
-          setError(`Wrong password. Attempt ${failedAttempts}/3`);
-          break;
-        case "auth/user-not-found":
-          setError("No account found with this email.");
-          break;
-        default:
-          setError("Login failed.");
+
+      navigate("/home");
+    } catch (err: any) {
+      const attempts = storedAttempts + 1;
+      localStorage.setItem(key, attempts.toString());
+
+      if (attempts >= MAX_ATTEMPTS) {
+        const newOtp = generateOTP();
+        setGeneratedOtp(newOtp);
+        await sendOtpEmail(email.trim(), newOtp);
+        setShowOtpInput(true);
+        setCanResend(false);
+        setCountdown(RESEND_COOLDOWN);
+        setError("Too many failed attempts. OTP sent to your email.");
+      } else {
+        setError(
+          err.code === "auth/wrong-password"
+            ? `Wrong password. Attempt ${attempts}/${MAX_ATTEMPTS}`
+            : "Invalid email or password."
+        );
       }
+    } finally {
+      if (!showOtpInput) setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
-        <h1 className="login-title">Welcome Back</h1>
-        <p className="login-subtitle">Sign in to continue shopping</p>
+    <>
+      <div className="login-wrapper">
+        <div className="login-card">
+          <h1 className="login-title">Welcome Back</h1>
+          <p className="login-subtitle">Sign in to continue shopping</p>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+          {error && <div className="error-message">{error}</div>}
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-          />
-
-          <div className="password-wrappers">
+          <form className="login-form" onSubmit={handleSubmit}>
             <Input
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               required
+              disabled={showOtpInput}
             />
-            <button
-              type="button"
-              className="toggle-passwords"
-              onClick={() => setShowPassword(!showPassword)}
-              tabIndex={-1}
-            >
-              {showPassword ? <FaEye /> : <FaEyeSlash />}
+
+            {!showOtpInput ? (
+              <div className="password-wrappers">
+                <Input
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-passwords"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEye /> : <FaEyeSlash />}
+                </button>
+              </div>
+            ) : (
+              <Input
+                label="Enter 6-digit OTP"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
+                maxLength={6}
+                required
+              />
+            )}
+
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? "Processing..." : showOtpInput ? "Verify OTP" : "Sign In"}
+            </button>
+          </form>
+
+          {!showOtpInput && (
+            <p className="login-footer">
+              Don't have an account? <Link to="/register">Sign Up</Link>
+            </p>
+          )}
+
+          {showOtpInput && (
+            <p className="text-receive">
+              Didn't receive it?{" "}
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                className="text-resend"
+                disabled={!canResend}
+              >
+                {canResend ? "Resend OTP" : `Resend OTP (${countdown}s)`}
+              </button>
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-icon modal-${modalType}`}>
+              {modalType === "success" && "✓"}
+              {modalType === "error" && "✕"}
+              {modalType === "info" && "ℹ"}
+            </div>
+            <p className="modal-message">{modalMessage}</p>
+            <button className="modal-btn" onClick={() => setShowModal(false)}>
+              OK
             </button>
           </div>
-
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
-
-        <p className="login-footer">
-          Don’t have an account? <Link to="/register">Sign Up</Link>
-        </p>
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
