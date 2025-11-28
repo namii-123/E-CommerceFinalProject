@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaHome, FaShoppingCart, FaUser, FaBars, FaSearch, FaEdit, FaTrash, FaPlus, FaBoxOpen, FaDollarSign, FaChartLine } from "react-icons/fa";
 import "../assets/Profile.css";
