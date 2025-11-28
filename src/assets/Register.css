@@ -1,0 +1,95 @@
+ .register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Card (smaller) */
+  .register-card {
+    background: #ffffff;
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 360px; /* smaller width */
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    text-align: left; /* Align content left for labels */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .register-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Titles */
+  .register-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #16a34a;
+    text-align: center; /* keep title centered */
+  }
+  
+  .register-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  /* Form */
+  .register-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* First + Last name row */
+  .name-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  /* Buttons */
+  .register-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: #16a34a;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .register-btn:hover {
+    background: #166534;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.4);
+  }
+  
+  /* Footer */
+  .register-footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #4b5563;
+    text-align: center;
+  }
+  
+  .register-footer a {
+    color: #16a34a;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .register-footer a:hover {
+    text-decoration: underline;
+  }
+  
