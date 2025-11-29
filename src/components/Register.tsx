@@ -1,25 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FaEye,
-  FaEyeSlash,
-  FaCheck,
-  FaTimes,
-  FaCheckCircle,
-} from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCheck, FaTimes, FaCheckCircle } from "react-icons/fa";
 import Input from "./Input";
 import "../assets/Register.css";
 
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
-import {
-  setDoc,
-  doc,
-  collection,
-  getCountFromServer,
-} from "firebase/firestore";
+import {createUserWithEmailAndPassword, sendEmailVerification, } from "firebase/auth";
+import { setDoc, doc, collection, getCountFromServer,} from "firebase/firestore";
 import { auth, db } from "./firebase";
 
 const Register: React.FC = () => {

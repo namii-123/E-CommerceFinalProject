@@ -1,4 +1,3 @@
-// Login.tsx - FINAL & CORRECT FOR 2025 FIREBASE
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
